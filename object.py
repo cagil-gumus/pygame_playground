@@ -1,8 +1,8 @@
 import numpy as np
 
 class object:
-  def __init__(self, 
-               init_position, # left is pos, right is neg, up is neg, down is pos 
+  def __init__(self,
+               init_position, # left is pos, right is neg, up is neg, down is pos
                init_velocity, # left is pos, right is neg, up is pos, down is neg
                weight,
                gravity, # Scalar
@@ -10,10 +10,11 @@ class object:
                screen_width,
                screen_height,
                air_resistance,
-               dt_speed_up_factor
+               dt_speed_up_factor,
+               collision_loss
                ):
-    
-    self.position = np.asarray(init_position) # m 
+
+    self.position = np.asarray(init_position) # m
     self.velocity = np.asanyarray(init_velocity) # m/s^2
     self.weight = weight # kg
     self.gravity = gravity # in m/s^2 Scalar value
@@ -30,7 +31,8 @@ class object:
     self.screen_width = screen_width
     self.screen_height = screen_height
     self.air_resistance =  air_resistance
-    self.dt_speed_up_factor = dt_speed_up_factor
+    self.dt_speed_up_factor = dt_speed_up_factor,
+    self.collision_loss = collision_loss
 
   def update_dt(self, dt):
     # Update important variables between delta-time
@@ -44,25 +46,25 @@ class object:
   # Things dt can effect:
   def update_position(self):
       self.position += self.velocity * self.dt
-  
+
   def update_velocity(self):
     self.velocity += self.acceleration * self.dt
-    
-  
+
+
   def update_acceleration(self):
 
     if self.collision_x:
-      self.acceleration[0] *= -0.8
-      self.velocity[0] *= -0.8
+      self.acceleration[0] *= -self.collision_loss
+      self.velocity[0] *= -self.collision_loss
 
     if self.collision_y:
-      self.acceleration[1] *= -0.8
-      self.velocity[1] *= -0.8
+      self.acceleration[1] *= -self.collision_loss
+      self.velocity[1] *= -self.collision_loss
 
     if self.go_up:
       self.acceleration[1] = -30
     elif self.go_down:
-      self.acceleration[1] = 15
+      self.acceleration[1] = 30 + self.gravity
     else:
       self.acceleration[1] = self.gravity
 
@@ -70,7 +72,7 @@ class object:
       self.acceleration[0] = -30
     elif not self.go_left and self.go_right:
       self.acceleration[0] = 30
-    elif self.velocity[0] < 0: 
+    elif self.velocity[0] < 0:
       self.acceleration[0] = self.air_resistance
     elif self.velocity[0] > 0:
       self.acceleration[0] = -1*self.air_resistance
@@ -86,7 +88,7 @@ class object:
         self.position[0] = self.screen_width - self.radius
       else:
           self.collision_x = False
-      
+
       if (self.position[1] - self.radius < 0):
         self.collision_y = True
         self.position[1] = self.radius
@@ -100,7 +102,7 @@ class object:
     print("Force: {}".format(self.force))
     print("Position: {}".format(self.position))
     print("Velocity: {}".format(self.velocity))
-    print("Acceleration: {}".format(self.acceleration))        
+    print("Acceleration: {}".format(self.acceleration))
     print("Dt: {}".format(self.dt))
     print("Collision-X: {}".format(self.collision_x))
     print("Collision-y: {}".format(self.collision_y))

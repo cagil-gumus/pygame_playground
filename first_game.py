@@ -5,12 +5,14 @@ from object import object
 
 
 # WORLD_SETTINGS
-GRAVITY = 150  # m/s^2
+GRAVITY = 150
 RADIUS = 40
 SCREEN_HEIGHT = 720
 SCREEN_WIDTH = 1280
 AIR_RESISTANCE = 3
-DT_SPEED_UP_FACTOR = 20
+DT_SPEED_UP_FACTOR = 10
+COLLISION_LOSS = 0.8
+
 # pygame setup
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -28,7 +30,8 @@ object1 = object(init_position=init_obj_pos,
                  screen_height=SCREEN_HEIGHT,
                  screen_width=SCREEN_WIDTH,
                  air_resistance=AIR_RESISTANCE,
-                 dt_speed_up_factor=DT_SPEED_UP_FACTOR)
+                 dt_speed_up_factor=DT_SPEED_UP_FACTOR,
+                 collision_loss=COLLISION_LOSS)
 
 while running:
     # poll for events
