@@ -6,7 +6,7 @@ from object import object
 
 # WORLD_SETTINGS
 GRAVITY = 150
-RADIUS = 40
+LENGTH = 40
 SCREEN_HEIGHT = 720
 SCREEN_WIDTH = 1280
 AIR_RESISTANCE = 3
@@ -33,6 +33,7 @@ object_list = []
 all_sprites = pygame.sprite.Group()
 
 object_to_add = 0
+created = False  # used for rising_edge detection
 
 while running:
     # poll for events
@@ -41,23 +42,29 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_0]:
-        object_list.append(object(init_position=init_obj_pos,
-                    init_velocity=[0.0, 0.0],
-                    weight=1.0,
-                    gravity=GRAVITY,
-                    radius = RADIUS,
-                    screen_height=SCREEN_HEIGHT,
-                    screen_width=SCREEN_WIDTH,
-                    air_resistance=AIR_RESISTANCE,
-                    dt_speed_up_factor=DT_SPEED_UP_FACTOR,
-                    collision_loss=COLLISION_LOSS))
+    if keys[pygame.K_0] and not created:
+        object_list.append(
+            object(
+                init_position=init_obj_pos,
+                init_velocity=[0.0, 0.0],
+                weight=1.0,
+                gravity=GRAVITY,
+                length=LENGTH,
+                screen_height=SCREEN_HEIGHT,
+                screen_width=SCREEN_WIDTH,
+                air_resistance=AIR_RESISTANCE,
+                dt_speed_up_factor=DT_SPEED_UP_FACTOR,
+                collision_loss=COLLISION_LOSS,
+            )
+        )
         all_sprites.add(object_list[object_to_add])
         object_to_add += 1
+        created = True
+    elif not keys[pygame.K_0]:
+        created = False
 
-   # Update all sprites
+    # Update all sprites
     all_sprites.update(dt)
 
     # Clear the screen

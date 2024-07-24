@@ -6,10 +6,10 @@ class object(pygame.sprite.Sprite):
     def __init__(
         self,
         init_position,  # left is pos, right is neg, up is neg, down is pos
-        init_velocity,  # left is pos, right is neg, up is pos, down is neg
+        init_velocity,  # left is pos, right is neg, up is neg, down is pos
         weight,
         gravity,  # Scalar
-        radius,
+        length,
         screen_width,
         screen_height,
         air_resistance,
@@ -30,7 +30,7 @@ class object(pygame.sprite.Sprite):
         self.dt = None
         self.collision_x = False
         self.collision_y = False
-        self.radius = radius
+        self.length = length
         self.screen_width = screen_width
         self.screen_height = screen_height
         self.air_resistance = air_resistance
@@ -39,8 +39,9 @@ class object(pygame.sprite.Sprite):
 
         # Sprite Related
         super().__init__()
-        self.image = pygame.Surface((50, 50))
-        self.image.fill((0, 0, 255))  # Blue square
+        # self.image = pygame.Surface((self.length, self.length))
+        self.image = pygame.image.load("neo.png").convert_alpha()
+        # self.image.fill((0, 0, 255))  # Blue square
         self.rect = self.image.get_rect()
         self.rect.center = (self.position[0], self.position[1])
 
@@ -63,21 +64,28 @@ class object(pygame.sprite.Sprite):
         self.position += self.velocity * self.dt
 
     def update_velocity(self):
+        # When object comes to standstill, make sure it doesn't wiggle.
+        for i in range(2):
+            if (
+                self.velocity[i] < 0.1
+                and self.velocity[i] > -0.1
+                and self.velocity[i] != 0
+            ):
+                self.velocity[i] = 0
         self.velocity += self.acceleration * self.dt
 
     def update_acceleration(self):
         if self.collision_x:
             self.acceleration[0] *= -self.collision_loss
             self.velocity[0] *= -self.collision_loss
-
         if self.collision_y:
             self.acceleration[1] *= -self.collision_loss
             self.velocity[1] *= -self.collision_loss
 
         if self.go_up:
-            self.acceleration[1] = -30
+            self.acceleration[1] = -50
         elif self.go_down:
-            self.acceleration[1] = 30 + self.gravity
+            self.acceleration[1] = 50 + self.gravity
         else:
             self.acceleration[1] = self.gravity
 
@@ -93,21 +101,27 @@ class object(pygame.sprite.Sprite):
             self.acceleration[0] = 0
 
     def handle_collision(self):
-        if self.position[0] - self.radius < 0:
+        if self.position[0] - self.length < 0:
             self.collision_x = True
-            self.position[0] = self.radius
-        elif (self.position[0] + self.radius) > self.screen_width:
+            self.position[0] = self.length
+            if self.velocity[0] < 0.01:
+                self.velocity[0] = 0
+        elif (self.position[0] + self.length) > self.screen_width:
             self.collision_x = True
-            self.position[0] = self.screen_width - self.radius
+            self.position[0] = self.screen_width - self.length
+            if self.velocity[0] < 0.01:
+                self.velocity[0] = 0
         else:
             self.collision_x = False
 
-        if self.position[1] - self.radius < 0:
+        if self.position[1] - self.length < 0:
             self.collision_y = True
-            self.position[1] = self.radius
-        elif self.position[1] + self.radius > self.screen_height:
+            self.position[1] = self.length
+            if self.velocity[1] < 30:
+                self.velocity[1] = 0
+        elif self.position[1] + self.length > self.screen_height:
             self.collision_y = True
-            self.position[1] = self.screen_height - self.radius
+            self.position[1] = self.screen_height - self.length
         else:
             self.collision_y = False
 
